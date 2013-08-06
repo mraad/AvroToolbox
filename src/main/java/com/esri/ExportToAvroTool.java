@@ -96,6 +96,7 @@ public class ExportToAvroTool extends AbstractTool
         {
             wkid = esriSRGeoCSType.esriSRGeoCS_WGS1984;
         }
+        final AvroSpatialReference avroSpatialReference = AvroSpatialReference.newBuilder().setWkid(wkid).build();
         final int geometryType = featureClass.getFeatureType();
 
         final Configuration configuration = createConfiguration(hadoopPropValue.getAsText());
@@ -157,7 +158,7 @@ public class ExportToAvroTool extends AbstractTool
                                         setX((envelope.getXMin() + envelope.getXMax()) * 0.5).
                                         setY((envelope.getYMin() + envelope.getYMax()) * 0.5).
                                         build();
-                                final AvroPoint point = AvroPoint.newBuilder().setCoord(coord).build();
+                                final AvroPoint point = AvroPoint.newBuilder().setCoord(coord).setSpatialReference(avroSpatialReference).build();
                                 final AvroFeature avroFeature = AvroFeature.newBuilder().setGeometry(point).setAttributes(attributes).build();
                                 dataFileWriter.append(avroFeature);
                                 feature = cursor.nextFeature();

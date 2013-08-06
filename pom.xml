@@ -16,6 +16,7 @@
         <hadoop.cdh3>0.20.2-cdh3u5</hadoop.cdh3>
         <hadoop.cdh4>2.0.0-cdh4.2.1</hadoop.cdh4>
         <hadoop.cdh4mr1>2.0.0-mr1-cdh4.2.1</hadoop.cdh4mr1>
+        <parquet.version>1.0.1-SNAPSHOT</parquet.version>
     </properties>
 
     <repositories>
@@ -28,6 +29,16 @@
             <id>cloudera-repos</id>
             <name>Cloudera Repos</name>
             <url>https://repository.cloudera.com/artifactory/cloudera-repos</url>
+        </repository>
+        <repository>
+            <id>sonatype-nexus-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
     </repositories>
 
@@ -54,9 +65,15 @@
             <version>1.9.12</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.avro</groupId>
-            <artifactId>avro</artifactId>
-            <version>1.7.4</version>
+            <groupId>com.twitter</groupId>
+            <artifactId>parquet-avro</artifactId>
+            <version>${parquet.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.hadoop</groupId>
+                    <artifactId>hadoop-client</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
