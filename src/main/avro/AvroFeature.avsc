@@ -1,0 +1,111 @@
+{
+    "namespace": "com.esri",
+    "type": "record",
+    "name": "AvroFeature",
+    "fields": [
+        {
+            "name": "geometry",
+            "type": [
+                {
+                    "namespace": "com.esri",
+                    "type": "record",
+                    "name": "AvroPoint",
+                    "fields": [
+                        {
+                            "name": "spatialReference",
+                            "default": "null",
+                            "type": {
+                                "namespace": "com.esri",
+                                "type": "record",
+                                "name": "AvroSpatialReference",
+                                "fields": [
+                                    {
+                                        "name": "wkid",
+                                        "type": "int",
+                                        "default": 4326
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "name": "coord",
+                            "default": "null",
+                            "type": {
+                                "namespace": "com.esri",
+                                "type": "record",
+                                "name": "AvroCoord",
+                                "fields": [
+                                    {
+                                        "name": "x",
+                                        "type": "double",
+                                        "default": 0.0
+                                    },
+                                    {
+                                        "name": "y",
+                                        "type": "double",
+                                        "default": 0.0
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "namespace": "com.esri",
+                    "type": "record",
+                    "name": "AvroPolygon",
+                    "fields": [
+                        {
+                            "name": "spatialReference",
+                            "default": "null",
+                            "type": "AvroSpatialReference"
+                        },
+                        {
+                            "name": "rings",
+                            "default": "null",
+                            "type": {
+                                "type": "array",
+                                "items": {
+                                    "type": "array",
+                                    "items": "AvroCoord"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "namespace": "com.esri",
+                    "type": "record",
+                    "name": "AvroPolyline",
+                    "fields": [
+                        {
+                            "name": "spatialReference",
+                            "default": "null",
+                            "type": "AvroSpatialReference"
+                        },
+                        {
+                            "name": "paths",
+                            "default": "null",
+                            "type": {
+                                "type": "array",
+                                "items": {
+                                    "type": "array",
+                                    "items": "AvroCoord"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ],
+            "default": "null"
+        },
+        {
+            "name": "attributes",
+            "type": {
+                "type": "map",
+                "values": ["string", "int", "float", "double", "boolean", "bytes", "null"]
+            },
+            "default": "null"
+        }
+    ]
+}
