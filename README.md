@@ -3,11 +3,13 @@ AvroToolbox
 
 ArcGIS toolbox to store feature classes in HDFS in [Apache Avro](http://avro.apache.org) and [Parquet format](http://parquet.io)
 
-A GIS generic feature geometry and attributes based on the [Avro specification](http://avro.apache.org/docs/current/spec.html) in AvroFeature.avsc file.
+A GIS generic feature with geometry and attributes is generated based on the [Avro specification](http://avro.apache.org/docs/current/spec.html) defined in AvroFeature.avsc file.
 
 ## Compiling the schema
 
     $ mvn avro:schema
+
+This enables us to have a concrete java POJO class to work with.
 
 ## CDH3 Packaging
 
@@ -21,7 +23,7 @@ Copy the file target/AvroToolbox-1.0-SNAPSHOT.jar and the folder target/libs to 
 
 ![Export To Avro](https://dl.dropboxusercontent.com/u/2193160/ExportToAvro.png "Export To Avro")
 
-The following is a sample content of a properties file:
+The following is a sample content of a Hadoop properties file:
 
     fs.default.name=hdfs\://localhadoop\:9000
     hadoop.socks.server=localhost\:6666
@@ -33,7 +35,7 @@ The following is a sample content of a properties file:
     $ mvn -Pcdh3-job clean package
     $ hadoop jar target/AvroToolbox-1.0-SNAPSHOT-job.jar /user/mraad_admin/worldlabels.avro /user/mraad_admin/output
 
-## Viewing MapReduce result
+## Viewing Avro content
 
     $ mvn -Pcdh3 clean package
     $ mvn -Pcdh3 exec:java -q -Dexec.mainClass=com.esri.AvroToJson -Dexec.args="hdfs://localhadoop:9000/user/mraad_admin/output/part-00000.avro"
