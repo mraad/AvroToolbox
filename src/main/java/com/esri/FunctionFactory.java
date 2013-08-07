@@ -19,7 +19,7 @@ import java.util.UUID;
 /**
  */
 @ArcGISExtension(categories = {ArcGISCategories.GPFunctionFactories})
-public class AvroFunctionFactory implements IGPFunctionFactory
+public final class FunctionFactory implements IGPFunctionFactory
 {
     private static final long serialVersionUID = -6366762606977787966L;
 

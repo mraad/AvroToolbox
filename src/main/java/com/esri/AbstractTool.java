@@ -36,7 +36,7 @@ import java.util.Properties;
  */
 public abstract class AbstractTool extends BaseGeoprocessingTool
 {
-    private final static AvroFunctionFactory FACTORY = new AvroFunctionFactory();
+    private final static FunctionFactory FACTORY = new FunctionFactory();
 
     @Override
     public IName getFullName() throws IOException, AutomationException
