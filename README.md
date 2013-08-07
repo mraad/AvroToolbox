@@ -13,6 +13,10 @@ A GIS generic feature geometry and attributes based on the [Avro specification](
 
     $ mvn -Pcdh3 clean package
 
+## CDH4 Packaging
+
+    $ mvn -Pcdh4 clean package
+
 Copy the file target/AvroToolbox-1.0-SNAPSHOT.jar and the folder target/libs to C:\Program Files (x86)\ArcGIS\Desktop10.1\java\lib\ext
 
 ![Export To Avro](https://dl.dropboxusercontent.com/u/2193160/ExportToAvro.png "Export To Avro")
@@ -24,12 +28,12 @@ The following is a sample content of a properties file:
     hadoop.rpc.socket.factory.class.default=org.apache.hadoop.net.SocksSocketFactory
     dfs.client.use.legacy.blockreader=true
 
-## CDH3 Running MapReduce job
+## Running MapReduce job
 
     $ mvn -Pcdh3-job clean package
     $ hadoop jar target/AvroToolbox-1.0-SNAPSHOT-job.jar /user/mraad_admin/worldlabels.avro /user/mraad_admin/output
 
-## CDH3 Viewing MapReduce result
+## Viewing MapReduce result
 
     $ mvn -Pcdh3 clean package
     $ mvn -Pcdh3 exec:java -q -Dexec.mainClass=com.esri.AvroToJson -Dexec.args="hdfs://localhadoop:9000/user/mraad_admin/output/part-00000.avro"
