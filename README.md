@@ -1,7 +1,13 @@
 AvroToolbox
 ===========
 
-ArcGIS toolbox to store feature classes in HDFS in Apache Avro and Parquet format
+ArcGIS toolbox to store feature classes in HDFS in [Apache Avro](http://avro.apache.org) and [Parquet format](http://parquet.io)
+
+A GIS generic feature geometry and attributes based on the [Avro specification](http://avro.apache.org/docs/current/spec.html) in AvroFeature.avsc file.
+
+## Compiling the schema
+
+    $ mvn avro:schema
 
 ## CDH3 Packaging
 
