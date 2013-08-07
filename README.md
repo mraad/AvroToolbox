@@ -17,6 +17,13 @@ Copy the file target/AvroToolbox-1.0-SNAPSHOT.jar and the folder target/libs to 
 
 ![Export To Avro](https://dl.dropboxusercontent.com/u/2193160/ExportToAvro.png "Export To Avro")
 
+The following is a sample content of a properties file:
+
+    fs.default.name=hdfs\://localhadoop\:9000
+    hadoop.socks.server=localhost\:6666
+    hadoop.rpc.socket.factory.class.default=org.apache.hadoop.net.SocksSocketFactory
+    dfs.client.use.legacy.blockreader=true
+
 ## CDH3 Running MapReduce job
 
     $ mvn -Pcdh3-job clean package
