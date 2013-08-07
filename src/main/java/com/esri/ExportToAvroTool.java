@@ -38,7 +38,7 @@ import java.util.Map;
 
 /**
  */
-public class ExportToAvroTool extends AbstractTool
+public final class ExportToAvroTool extends AbstractTool
 {
     private static final long serialVersionUID = -6111893544409469534L;
 

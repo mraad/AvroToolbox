@@ -19,11 +19,11 @@ import java.util.UUID;
 /**
  */
 @ArcGISExtension(categories = {ArcGISCategories.GPFunctionFactories})
-public final class FunctionFactory implements IGPFunctionFactory
+public final class AvroToolbox implements IGPFunctionFactory
 {
     private static final long serialVersionUID = -6366762606977787966L;
 
-    private static final String NAME = "AvroToolbox";
+    private static final String NAME = AvroToolbox.class.getSimpleName();
 
     public IUID getCLSID() throws IOException, AutomationException
     {

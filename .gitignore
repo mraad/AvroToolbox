@@ -1,7 +1,13 @@
+.idea
 *.class
 *.jar
 *.war
 *.ear
 *.iml
 target
-Avro*.java
+AvroCoord.java
+AvroFeature.java
+AvroPoint.java
+AvroPolygon.java
+AvroPolyline.java
+AvroSpatialReference.java
