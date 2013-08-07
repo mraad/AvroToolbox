@@ -11,12 +11,12 @@ Copy the file target/AvroToolbox-1.0-SNAPSHOT.jar and the folder target/libs to 
 
 ![Export To Avro](https://dl.dropboxusercontent.com/u/2193160/ExportToAvro.png "Export To Avro")
 
-## CDH3 Packaging and running MapReduce job
+## CDH3 Running MapReduce job
 
     $ mvn -Pcdh3-job clean package
     $ hadoop jar target/AvroToolbox-1.0-SNAPSHOT-job.jar /user/mraad_admin/worldlabels.avro /user/mraad_admin/output
 
-## CDH3 Packaging and viewing content
+## CDH3 Viewing MapReduce result
 
     $ mvn -Pcdh3 clean package
     $ mvn -Pcdh3 exec:java -q -Dexec.mainClass=com.esri.AvroToJson -Dexec.args="hdfs://localhadoop:9000/user/mraad_admin/output/part-00000.avro"
