@@ -10,10 +10,15 @@ import com.esri.arcgis.geodatabase.IFields;
 import com.esri.arcgis.geodatabase.IGPMessages;
 import com.esri.arcgis.geodatabase.IGPValue;
 import com.esri.arcgis.geodatabase.esriFieldType;
-import com.esri.arcgis.geometry.IEnvelope;
 import com.esri.arcgis.geometry.IGeometry;
+import com.esri.arcgis.geometry.IGeometryCollection;
+import com.esri.arcgis.geometry.IPoint;
+import com.esri.arcgis.geometry.IPointCollection;
 import com.esri.arcgis.geometry.ISpatialReference;
 import com.esri.arcgis.geometry.ISpatialReferenceAuthority;
+import com.esri.arcgis.geometry.Point;
+import com.esri.arcgis.geometry.Polygon;
+import com.esri.arcgis.geometry.Polyline;
 import com.esri.arcgis.geometry.esriSRGeoCSType;
 import com.esri.arcgis.geoprocessing.IGPEnvironmentManager;
 import com.esri.arcgis.interop.AutomationException;
@@ -33,7 +38,9 @@ import org.apache.hadoop.security.UserGroupInformation;
 import java.io.File;
 import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -153,16 +160,22 @@ public final class ExportToAvroTool extends AbstractTool
                                     }
                                 }
                                 final IGeometry shape = feature.getShape();
-                                final IEnvelope envelope = shape.getEnvelope();
-                                final AvroCoord coord = AvroCoord.newBuilder().
-                                        setX((envelope.getXMin() + envelope.getXMax()) * 0.5).
-                                        setY((envelope.getYMin() + envelope.getYMax()) * 0.5).
-                                        build();
-                                final AvroPoint point = AvroPoint.newBuilder().setCoord(coord).setSpatialReference(avroSpatialReference).build();
-                                final AvroFeature avroFeature = AvroFeature.newBuilder().setGeometry(point).setAttributes(attributes).build();
-                                dataFileWriter.append(avroFeature);
+                                if (shape instanceof Point)
+                                {
+                                    dataFileWriter.append(buildFeature(avroSpatialReference, attributes, (Point) shape));
+                                    count++;
+                                }
+                                else if (shape instanceof Polygon)
+                                {
+                                    dataFileWriter.append(buildFeature(avroSpatialReference, attributes, (Polygon) shape));
+                                    count++;
+                                }
+                                else if (shape instanceof Polyline)
+                                {
+                                    dataFileWriter.append(buildFeature(avroSpatialReference, attributes, (Polyline) shape));
+                                    count++;
+                                }
                                 feature = cursor.nextFeature();
-                                count++;
                             }
                         }
                         finally
@@ -194,6 +207,84 @@ public final class ExportToAvroTool extends AbstractTool
         return count;
     }
 
+    private AvroFeature buildFeature(
+            final AvroSpatialReference avroSpatialReference,
+            final Map<CharSequence, Object> attributes,
+            final Polyline shape) throws IOException
+    {
+        final List<List<AvroCoord>> paths = buildParts(shape);
+        final AvroPolyline avroPolygon = AvroPolyline.newBuilder().
+                setSpatialReference(avroSpatialReference).
+                setPaths(paths).build();
+        return AvroFeature.newBuilder().
+                setGeometry(avroPolygon).
+                setAttributes(attributes).
+                build();
+    }
+
+    private AvroFeature buildFeature(
+            final AvroSpatialReference avroSpatialReference,
+            final Map<CharSequence, Object> attributes,
+            final Polygon shape) throws IOException
+    {
+        final List<List<AvroCoord>> rings = buildParts(shape);
+        final AvroPolygon avroPolygon = AvroPolygon.newBuilder().
+                setSpatialReference(avroSpatialReference).
+                setRings(rings).build();
+        return AvroFeature.newBuilder().
+                setGeometry(avroPolygon).
+                setAttributes(attributes).
+                build();
+    }
+
+    private AvroFeature buildFeature(
+            final AvroSpatialReference avroSpatialReference,
+            final Map<CharSequence, Object> attributes,
+            final Point point) throws IOException
+    {
+        final AvroCoord avroCoord = AvroCoord.newBuilder().
+                setX(point.getX()).
+                setY(point.getY()).
+                build();
+        final AvroPoint avroPoint = AvroPoint.newBuilder().
+                setSpatialReference(avroSpatialReference).
+                setCoord(avroCoord).
+                build();
+        return AvroFeature.newBuilder().
+                setGeometry(avroPoint).
+                setAttributes(attributes).
+                build();
+    }
+
+    private List<List<AvroCoord>> buildParts(final IGeometryCollection geomCollection) throws IOException
+    {
+        final int count = geomCollection.getGeometryCount();
+        final List<List<AvroCoord>> list = new ArrayList<List<AvroCoord>>(count);
+        for (int c = 0; c < count; c++)
+        {
+            final IGeometry geometry = geomCollection.getGeometry(c);
+            if (geometry instanceof IPointCollection)
+            {
+                final IPointCollection pointCollection = (IPointCollection) geometry;
+                list.add(buildCoordList(pointCollection));
+            }
+        }
+        return list;
+    }
+
+    private List<AvroCoord> buildCoordList(final IPointCollection pointCollection) throws IOException
+    {
+        final int count = pointCollection.getPointCount();
+        final List<AvroCoord> list = new ArrayList<AvroCoord>(count);
+        for (int c = 0; c < count; c++)
+        {
+            final IPoint point = pointCollection.getPoint(c);
+            list.add(AvroCoord.newBuilder().
+                    setX(point.getX()).
+                    setY(point.getY()).build());
+        }
+        return list;
+    }
 
     @Override
     public IArray getParameterInfo() throws IOException, AutomationException
