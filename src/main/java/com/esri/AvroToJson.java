@@ -21,7 +21,7 @@ public class AvroToJson
 {
     public final static void main(final String[] args) throws IOException, InterruptedException
     {
-        if (args.length != 1)
+        if (args.length == 0)
         {
             System.err.println("Missing AVRO path !");
         }
