@@ -15,7 +15,7 @@ import org.apache.hadoop.fs.Path;
 import java.io.IOException;
 
 /**
- * mvn -Pcdh3 exec:java -q -Dexec.mainClass=com.esri.AvroToJson -Dexec.args="hdfs://localhadoop:9000/user/mraad_admin/output/part-00000.avro"
+ * mvn -Pcdh3 exec:java -q -Dexec.mainClass=com.esri.AvroToJson -Dexec.args="hdfs://localhadoop:9000/user/mraad_admin/output/part-00000.avro 10"
  */
 public class AvroToJson
 {
@@ -23,10 +23,11 @@ public class AvroToJson
     {
         if (args.length == 0)
         {
-            System.err.println("Missing AVRO path !");
+            System.err.format("Usage: %s scheme://host:port/path/to/file.avro [count]\n", AvroToJson.class.getSimpleName());
         }
         else
         {
+            int count = args.length == 2 ? Integer.parseInt(args[1]) : -1;
             final GenericDatumReader<Object> reader = new GenericDatumReader<Object>();
             final Path path = new Path(args[0]);
             final FsInput input = new FsInput(path, new Configuration());
@@ -39,6 +40,10 @@ public class AvroToJson
                 for (Object datum : fileReader)
                 {
                     writer.write(datum, encoder);
+                    if (--count == 0)
+                    {
+                        break;
+                    }
                 }
                 encoder.flush();
                 System.out.println();
