@@ -57,22 +57,22 @@ Create a *points* folder in HDFS, and load a set or random points as Avro featur
 
 Place the Avro schema in HDFS:
 
-    $ hadoop fs -put src/main/avro/AvroFeature.avsc AvroFeature.avsc
+    $ hadoop fs -put src/main/avro/AvroPointFeature.avsc points.avsc
 
 Start the Hive shell and define the table:
 
     $ hive
     hive> CREATE EXTERNAL TABLE points
-              ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.avro.AvroSerDe'
-              STORED AS
-              INPUTFORMAT  'org.apache.hadoop.hive.ql.io.avro.AvroContainerInputFormat'
-              OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.avro.AvroContainerOutputFormat'
-              LOCATION '/user/cloudera/points/'
-              TBLPROPERTIES ('avro.schema.url'='hdfs://localhost.localdomain/user/cloudera/AvroFeature.avsc');
+    ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.avro.AvroSerDe'
+    STORED AS
+    INPUTFORMAT  'org.apache.hadoop.hive.ql.io.avro.AvroContainerInputFormat'
+    OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.avro.AvroContainerOutputFormat'
+    LOCATION '/user/cloudera/points/'
+    TBLPROPERTIES ('avro.schema.url'='hdfs://localhost.localdomain/user/cloudera/points.avsc');
 
 Query the table:
 
-    hive> select geometry,attributes['id'] from points limit 10;
+    hive> select geometry.coord,attributes['id'] from points limit 10;
     Total MapReduce jobs = 1
     Launching Job 1 out of 1
     Number of reduce tasks is set to 0 since there's no reduce operator
@@ -89,14 +89,14 @@ Query the table:
     Job 0: Map: 1   Cumulative CPU: 1.13 sec   HDFS Read: 15935 HDFS Write: 486 SUCCESS
     Total MapReduce CPU Time Spent: 1 seconds 130 msec
     OK
-    {0:{"spatialreference":{"wkid":4326},"coord":{"x":-131.67325848386128,"y":55.21639737095859}}}	{1:0}
-    {0:{"spatialreference":{"wkid":4326},"coord":{"x":50.53089121219577,"y":-45.46385957292893}}}	{1:1}
-    {0:{"spatialreference":{"wkid":4326},"coord":{"x":-68.66292877438813,"y":-47.99221707253536}}}	{1:2}
-    {0:{"spatialreference":{"wkid":4326},"coord":{"x":151.06323974650468,"y":18.089597508541587}}}	{1:3}
-    {0:{"spatialreference":{"wkid":4326},"coord":{"x":-125.75909851391168,"y":-83.36445481973186}}}	{1:4}
-    {0:{"spatialreference":{"wkid":4326},"coord":{"x":-10.586696547910748,"y":-26.84047109087774}}}	{1:5}
-    {0:{"spatialreference":{"wkid":4326},"coord":{"x":-41.19432437792534,"y":21.8966844948239}}}	{1:6}
-    {0:{"spatialreference":{"wkid":4326},"coord":{"x":174.87478351390024,"y":4.045731094303122}}}	{1:7}
-    {0:{"spatialreference":{"wkid":4326},"coord":{"x":130.762006312611,"y":-23.261282885155765}}}	{1:8}
-    {0:{"spatialreference":{"wkid":4326},"coord":{"x":86.44882777211978,"y":-80.11749815286643}}}	{1:9}
-    Time taken: 12.496 seconds
+    {"x":159.74572199827702,"y":40.32521537633818}	{1:0}
+    {"x":-149.73039877969308,"y":-13.94736096833141}	{1:1}
+    {"x":46.361639376801236,"y":25.77145412669374}	{1:2}
+    {"x":-132.41313972636817,"y":44.22558416016216}	{1:3}
+    {"x":-8.925429128076644,"y":29.313162418474704}	{1:4}
+    {"x":62.46805700709206,"y":40.81419992554635}	{1:5}
+    {"x":125.16119385803438,"y":-31.717399080676735}	{1:6}
+    {"x":89.4502093945652,"y":-32.22107550052377}	{1:7}
+    {"x":-3.5726678441100717,"y":-66.01880710966441}	{1:8}
+    {"x":40.776519552978755,"y":61.298035708039976}	{1:9}
+    Time taken: 7.51 seconds

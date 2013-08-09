@@ -33,11 +33,11 @@ public class RandomPoints
             final FSDataOutputStream fsDataOutputStream = fileSystem.create(path);
             try
             {
-                final DatumWriter<AvroFeature> datumWriter = new SpecificDatumWriter<AvroFeature>(AvroFeature.class);
-                final DataFileWriter<AvroFeature> dataFileWriter = new DataFileWriter<AvroFeature>(datumWriter);
+                final DatumWriter<AvroPointFeature> datumWriter = new SpecificDatumWriter<AvroPointFeature>(AvroPointFeature.class);
+                final DataFileWriter<AvroPointFeature> dataFileWriter = new DataFileWriter<AvroPointFeature>(datumWriter);
                 try
                 {
-                    dataFileWriter.create(AvroFeature.getClassSchema(), fsDataOutputStream);
+                    dataFileWriter.create(AvroPointFeature.getClassSchema(), fsDataOutputStream);
                     final Map<CharSequence, Object> map = new HashMap<CharSequence, Object>();
                     final AvroSpatialReference spatialReference = AvroSpatialReference.newBuilder().
                             setWkid(4326).
@@ -52,7 +52,7 @@ public class RandomPoints
                         final AvroPoint avroPoint = AvroPoint.newBuilder().
                                 setCoord(avroCoord).setSpatialReference(spatialReference).
                                 build();
-                        final AvroFeature avroFeature = AvroFeature.newBuilder().
+                        final AvroPointFeature avroFeature = AvroPointFeature.newBuilder().
                                 setGeometry(avroPoint).
                                 setAttributes(map).build();
                         dataFileWriter.append(avroFeature);

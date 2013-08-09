@@ -11,3 +11,4 @@ AvroPoint.java
 AvroPolygon.java
 AvroPolyline.java
 AvroSpatialReference.java
+AvroPointFeature.java
