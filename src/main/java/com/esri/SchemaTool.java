@@ -117,18 +117,7 @@ public final class SchemaTool extends AbstractTool
             final FeatureClass featureClass,
             final IGPMessages messages) throws IOException
     {
-        final ISpatialReference spatialReference = featureClass.getSpatialReference();
-        final int wkid;
-        if (spatialReference instanceof ISpatialReferenceAuthority)
-        {
-            final ISpatialReferenceAuthority spatialReferenceAuthority = (ISpatialReferenceAuthority) spatialReference;
-            final int code = spatialReferenceAuthority.getCode();
-            wkid = code == 0 ? esriSRGeoCSType.esriSRGeoCS_WGS1984 : code;
-        }
-        else
-        {
-            wkid = esriSRGeoCSType.esriSRGeoCS_WGS1984;
-        }
+        final int wkid = getWkid(featureClass);
         final JsonFactory jsonFactory = new JsonFactory();
         final JsonGenerator g = jsonFactory.createJsonGenerator(fsDataOutputStream);
         try
@@ -139,7 +128,7 @@ public final class SchemaTool extends AbstractTool
             g.writeStringField("name", featureClass.getName());
             g.writeArrayFieldStart("fields");
             writeShape(g, namespace, featureClass.getShapeType(), wkid, messages);
-            writeFields(g, featureClass.getFields(), messages);
+            writeFields(g, featureClass, messages);
             g.writeEndArray();
             g.writeEndObject();
         }
@@ -149,34 +138,66 @@ public final class SchemaTool extends AbstractTool
         }
     }
 
+    private int getWkid(final FeatureClass featureClass) throws IOException
+    {
+        final int wkid;
+        final ISpatialReference spatialReference = featureClass.getSpatialReference();
+        try
+        {
+            if (spatialReference instanceof ISpatialReferenceAuthority)
+            {
+                final ISpatialReferenceAuthority spatialReferenceAuthority = (ISpatialReferenceAuthority) spatialReference;
+                final int code = spatialReferenceAuthority.getCode();
+                wkid = code == 0 ? esriSRGeoCSType.esriSRGeoCS_WGS1984 : code;
+            }
+            else
+            {
+                wkid = esriSRGeoCSType.esriSRGeoCS_WGS1984;
+            }
+        }
+        finally
+        {
+            Cleaner.release(spatialReference);
+        }
+        return wkid;
+    }
+
     private void writeFields(
             final JsonGenerator g,
-            final IFields fields,
+            final FeatureClass featureClass,
             final IGPMessages messages) throws IOException
     {
-        final int count = fields.getFieldCount();
-        for (int c = 0; c < count; c++)
+        final IFields fields = featureClass.getFields();
+        try
         {
-            final IField field = fields.getField(c);
-            messages.addMessage(String.format("%s %d", field.getName(), field.getType()));
-            switch (field.getType())
+            final int count = fields.getFieldCount();
+            for (int c = 0; c < count; c++)
             {
-                case esriFieldType.esriFieldTypeString:
-                    writeField(g, field, "string");
-                    break;
-                case esriFieldType.esriFieldTypeDouble:
-                    writeField(g, field, "double");
-                    break;
-                case esriFieldType.esriFieldTypeSingle:
-                    writeField(g, field, "float");
-                    break;
-                case esriFieldType.esriFieldTypeInteger:
-                    writeField(g, field, "long");
-                    break;
-                case esriFieldType.esriFieldTypeSmallInteger:
-                    writeField(g, field, "int");
-                    break;
+                final IField field = fields.getField(c);
+                messages.addMessage(String.format("%s %d", field.getName(), field.getType()));
+                switch (field.getType())
+                {
+                    case esriFieldType.esriFieldTypeString:
+                        writeField(g, field, "string");
+                        break;
+                    case esriFieldType.esriFieldTypeDouble:
+                        writeField(g, field, "double");
+                        break;
+                    case esriFieldType.esriFieldTypeSingle:
+                        writeField(g, field, "float");
+                        break;
+                    case esriFieldType.esriFieldTypeInteger:
+                        writeField(g, field, "long");
+                        break;
+                    case esriFieldType.esriFieldTypeSmallInteger:
+                        writeField(g, field, "int");
+                        break;
+                }
             }
+        }
+        finally
+        {
+            Cleaner.release(fields);
         }
     }
 
