@@ -21,7 +21,7 @@ import java.util.UUID;
 @ArcGISExtension(categories = {ArcGISCategories.GPFunctionFactories})
 public final class AvroToolbox implements IGPFunctionFactory
 {
-    private static final long serialVersionUID = -6366762606977787966L;
+    private static final long serialVersionUID = 2385676665599961990L;
 
     private static final String NAME = AvroToolbox.class.getSimpleName();
 
@@ -48,6 +48,10 @@ public final class AvroToolbox implements IGPFunctionFactory
         {
             return new ExportToAvroTool();
         }
+        if (SchemaTool.NAME.equalsIgnoreCase(s))
+        {
+            return new SchemaTool();
+        }
         return null;
     }
 
@@ -63,6 +67,16 @@ public final class AvroToolbox implements IGPFunctionFactory
             functionName.setFactoryByRef(this);
             return functionName;
         }
+        if (SchemaTool.NAME.equalsIgnoreCase(s))
+        {
+            final GPFunctionName functionName = new GPFunctionName();
+            functionName.setCategory(SchemaTool.NAME);
+            functionName.setDescription(SchemaTool.NAME);
+            functionName.setDisplayName(SchemaTool.NAME);
+            functionName.setName(SchemaTool.NAME);
+            functionName.setFactoryByRef(this);
+            return functionName;
+        }
         return null;
     }
 
@@ -70,6 +84,7 @@ public final class AvroToolbox implements IGPFunctionFactory
     {
         final EnumGPName nameArray = new EnumGPName();
         nameArray.add(getFunctionName(ExportToAvroTool.NAME));
+        nameArray.add(getFunctionName(SchemaTool.NAME));
         return nameArray;
     }
 

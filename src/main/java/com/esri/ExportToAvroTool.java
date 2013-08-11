@@ -104,7 +104,6 @@ public final class ExportToAvroTool extends AbstractTool
             wkid = esriSRGeoCSType.esriSRGeoCS_WGS1984;
         }
         final AvroSpatialReference avroSpatialReference = AvroSpatialReference.newBuilder().setWkid(wkid).build();
-        final int geometryType = featureClass.getFeatureType();
 
         final Configuration configuration = createConfiguration(hadoopPropValue.getAsText());
         final Path path = new Path(outputValue.getAsText());
