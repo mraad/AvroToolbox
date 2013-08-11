@@ -268,9 +268,9 @@ public final class SchemaTool extends AbstractTool
         g.writeStartObject();
         g.writeStringField("name", "geometry");
         g.writeStringField("default", "null");
-        writeRecordStart(g, null, "AvroPolygon");
+        writeRecordStart(g, namespace, "AvroPolygon");
         writeSpatialReference(g, namespace, wkid);
-        writeRingPath(g, "rings");
+        writeRingPath(g, namespace, "rings");
         g.writeEndArray();
         g.writeEndObject();
         g.writeEndObject();
@@ -284,9 +284,9 @@ public final class SchemaTool extends AbstractTool
         g.writeStartObject();
         g.writeStringField("name", "geometry");
         g.writeStringField("default", "null");
-        writeRecordStart(g, null, "AvroPolyline");
+        writeRecordStart(g, namespace, "AvroPolyline");
         writeSpatialReference(g, namespace, wkid);
-        writeRingPath(g, "paths");
+        writeRingPath(g, namespace, "paths");
         g.writeEndArray();
         g.writeEndObject();
         g.writeEndObject();
@@ -294,6 +294,7 @@ public final class SchemaTool extends AbstractTool
 
     private void writeRingPath(
             final JsonGenerator g,
+            final String namespace,
             final String name) throws IOException
     {
         g.writeStartObject();
@@ -306,7 +307,7 @@ public final class SchemaTool extends AbstractTool
                 g.writeObjectFieldStart("items");
                 {
                     g.writeStringField("type", "array");
-                    writeCoord(g, "items", null);
+                    writeCoord(g, namespace);
                 }
                 g.writeEndObject(); // items
             }
@@ -321,13 +322,31 @@ public final class SchemaTool extends AbstractTool
             final int wkid) throws IOException
     {
         g.writeStartObject();
-        g.writeStringField("name", "geometry");
-        g.writeStringField("default", "null");
-        writeRecordStart(g, null, "AvroPoint");
-        writeSpatialReference(g, namespace, wkid);
-        writeCoord(g, null, null);
-        g.writeEndArray();
-        g.writeEndObject();
+        {
+            g.writeStringField("name", "geometry");
+            g.writeStringField("default", "null");
+            g.writeObjectFieldStart("type");
+            {
+                g.writeStringField("type", "record");
+                g.writeStringField("namespace", namespace);
+                g.writeStringField("name", "AvroPoint");
+                g.writeArrayFieldStart("fields");
+                {
+                    writeSpatialReference(g, namespace, wkid);
+                    g.writeStartObject();
+                    {
+                        g.writeStringField("name", "coord");
+                        g.writeStringField("default", "null");
+                        g.writeObjectFieldStart("type");
+                        writeAvroCoord(g, namespace);
+                        g.writeEndObject();
+                    }
+                    g.writeEndObject();
+                }
+                g.writeEndArray();
+            }
+            g.writeEndObject();
+        }
         g.writeEndObject();
     }
 
@@ -351,24 +370,26 @@ public final class SchemaTool extends AbstractTool
 
     private void writeCoord(
             final JsonGenerator g,
-            final String fieldName,
             final String namespace) throws IOException
     {
-        if (fieldName == null)
-        {
-            g.writeStartObject();
-        }
-        else
-        {
-            g.writeObjectFieldStart(fieldName);
-        }
-        g.writeStringField("name", "geometry");
-        g.writeStringField("default", "null");
-        writeRecordStart(g, namespace, "AvroPoint");
-        writeField(g, "x", "double", 0.0);
-        writeField(g, "y", "double", 0.0);
-        writeRecordEnd(g);
+        g.writeStartObject();
+        writeAvroCoord(g, namespace);
         g.writeEndObject();
+    }
+
+    private void writeAvroCoord(
+            final JsonGenerator g,
+            final String namespace) throws IOException
+    {
+        g.writeStringField("type", "record");
+        g.writeStringField("namespace", namespace);
+        g.writeStringField("name", "AvroCoord");
+        g.writeArrayFieldStart("fields");
+        {
+            writeField(g, "x", "double", 0.0);
+            writeField(g, "y", "double", 0.0);
+        }
+        g.writeEndArray();
     }
 
     private void writeSpatialReference(
