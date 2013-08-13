@@ -174,7 +174,8 @@ public final class SchemaTool extends AbstractTool
             for (int c = 0; c < count; c++)
             {
                 final IField field = fields.getField(c);
-                messages.addMessage(String.format("%s %d", field.getName(), field.getType()));
+                messages.addMessage(String.format("%s %d %d",
+                        field.getName(), field.getType(), field.getLength()));
                 switch (field.getType())
                 {
                     case esriFieldType.esriFieldTypeString:
@@ -187,7 +188,7 @@ public final class SchemaTool extends AbstractTool
                         writeField(g, field, "float");
                         break;
                     case esriFieldType.esriFieldTypeInteger:
-                        writeField(g, field, "long");
+                        writeField(g, field, "int");
                         break;
                     case esriFieldType.esriFieldTypeSmallInteger:
                         writeField(g, field, "int");
@@ -267,7 +268,7 @@ public final class SchemaTool extends AbstractTool
     {
         g.writeStartObject();
         g.writeStringField("name", "geometry");
-        g.writeStringField("default", "null");
+        // g.writeStringField("default", "null");
         writeRecordStart(g, namespace, "AvroPolygon");
         writeSpatialReference(g, namespace, wkid);
         writeRingPath(g, namespace, "rings");
@@ -283,7 +284,7 @@ public final class SchemaTool extends AbstractTool
     {
         g.writeStartObject();
         g.writeStringField("name", "geometry");
-        g.writeStringField("default", "null");
+        // g.writeStringField("default", "null");
         writeRecordStart(g, namespace, "AvroPolyline");
         writeSpatialReference(g, namespace, wkid);
         writeRingPath(g, namespace, "paths");
@@ -300,7 +301,7 @@ public final class SchemaTool extends AbstractTool
         g.writeStartObject();
         {
             g.writeStringField("name", name);
-            g.writeStringField("default", "null");
+            // g.writeStringField("default", "null");
             g.writeObjectFieldStart("type");
             {
                 g.writeStringField("type", "array");
@@ -324,7 +325,7 @@ public final class SchemaTool extends AbstractTool
         g.writeStartObject();
         {
             g.writeStringField("name", "geometry");
-            g.writeStringField("default", "null");
+            // g.writeStringField("default", "null");
             g.writeObjectFieldStart("type");
             {
                 g.writeStringField("type", "record");
@@ -336,7 +337,7 @@ public final class SchemaTool extends AbstractTool
                     g.writeStartObject();
                     {
                         g.writeStringField("name", "coord");
-                        g.writeStringField("default", "null");
+                        // g.writeStringField("default", "null");
                         g.writeObjectFieldStart("type");
                         writeAvroCoord(g, namespace);
                         g.writeEndObject();
@@ -400,7 +401,7 @@ public final class SchemaTool extends AbstractTool
     {
         g.writeStartObject();
         g.writeStringField("name", "spatialReference");
-        g.writeStringField("default", "null");
+        // g.writeStringField("default", "null");
         writeRecordStart(g, namespace, "AvroSpatialReference");
         writeField(g, "wkid", "int", wkid);
         writeRecordEnd(g);

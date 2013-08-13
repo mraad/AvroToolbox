@@ -44,6 +44,10 @@ public final class AvroToolbox implements IGPFunctionFactory
 
     public IGPFunction getFunction(final String s) throws IOException, AutomationException
     {
+        if (ExportToGenericAvroTool.NAME.equalsIgnoreCase(s))
+        {
+            return new ExportToGenericAvroTool();
+        }
         if (ExportToAvroTool.NAME.equalsIgnoreCase(s))
         {
             return new ExportToAvroTool();
@@ -57,6 +61,16 @@ public final class AvroToolbox implements IGPFunctionFactory
 
     public IGPName getFunctionName(final String s) throws IOException, AutomationException
     {
+        if (ExportToGenericAvroTool.NAME.equalsIgnoreCase(s))
+        {
+            final GPFunctionName functionName = new GPFunctionName();
+            functionName.setCategory(ExportToGenericAvroTool.NAME);
+            functionName.setDescription(ExportToGenericAvroTool.NAME);
+            functionName.setDisplayName(ExportToGenericAvroTool.NAME);
+            functionName.setName(ExportToGenericAvroTool.NAME);
+            functionName.setFactoryByRef(this);
+            return functionName;
+        }
         if (ExportToAvroTool.NAME.equalsIgnoreCase(s))
         {
             final GPFunctionName functionName = new GPFunctionName();
@@ -83,6 +97,7 @@ public final class AvroToolbox implements IGPFunctionFactory
     public IEnumGPName getFunctionNames() throws IOException, AutomationException
     {
         final EnumGPName nameArray = new EnumGPName();
+        nameArray.add(getFunctionName(ExportToGenericAvroTool.NAME));
         nameArray.add(getFunctionName(ExportToAvroTool.NAME));
         nameArray.add(getFunctionName(SchemaTool.NAME));
         return nameArray;

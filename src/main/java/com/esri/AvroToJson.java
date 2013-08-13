@@ -37,7 +37,7 @@ public class AvroToJson
                 final Schema schema = fileReader.getSchema();
                 final DatumWriter<Object> writer = new GenericDatumWriter<Object>(schema);
                 final JsonEncoder encoder = EncoderFactory.get().jsonEncoder(schema, System.out);
-                for (Object datum : fileReader)
+                for (final Object datum : fileReader)
                 {
                     writer.write(datum, encoder);
                     if (--count == 0)
