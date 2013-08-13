@@ -265,12 +265,12 @@ public final class ExportToGenericAvroTool extends AbstractTool
     @Override
     public IArray getParameterInfo() throws IOException, AutomationException
     {
-        final String username = "mraad_admin"; // System.getProperty("user.name");
+        final String username = System.getProperty("user.name");
         final String userhome = System.getProperty("user.home") + File.separator;
 
         final IArray parameters = new Array();
 
-        addParamFile(parameters, "Hadoop properties file", "in_hadoop_prop", userhome + "localhadoop.properties");
+        addParamFile(parameters, "Hadoop properties file", "in_hadoop_prop", userhome + "hadoop.properties");
         addParamString(parameters, "Hadoop user", "in_hadoop_user", username);
         addParamFeatureLayer(parameters, "Input feature class", "in_features");
         addParamString(parameters, "Input schema", "in_schema", "/user/" + username + "/worldlabels.avsc");
