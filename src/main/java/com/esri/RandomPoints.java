@@ -7,30 +7,45 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.security.UserGroupInformation;
 
 import java.io.IOException;
+import java.security.PrivilegedExceptionAction;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * mvn -Pcdh4 exec:java -q -Dexec.mainClass=com.esri.RandomPoints -Dexec.args="hdfs://localhost:8020/user/cloudera/point/points.avro"
+ * mvn exec:java -q -Dexec.mainClass=com.esri.RandomPoints -Dexec.args="cloudera hdfs://localhost.localdomain:8020/user/cloudera/points/points.avro"
  */
 public class RandomPoints
 {
-    public static void main(final String[] args) throws IOException
+    public static void main(final String[] args) throws IOException, InterruptedException
     {
-        if (args.length == 0)
+        if (args.length != 2)
         {
-            System.err.println("Missing output path argument !");
+            System.err.println("Usage: remote-user hdfs-path");
             System.exit(-1);
         }
+        final UserGroupInformation ugi = UserGroupInformation.createRemoteUser(args[0]);
+        ugi.doAs(new PrivilegedExceptionAction<Void>()
+        {
+            @Override
+            public Void run() throws Exception
+            {
+                doMain(args[1]);
+                return null;
+            }
+        });
+    }
+
+    private static void doMain(final String pathString) throws IOException
+    {
         final Configuration configuration = new Configuration();
-        final Path path = new Path(args[0]);
+        final Path path = new Path(pathString);
         final FileSystem fileSystem = path.getFileSystem(configuration);
         try
         {
-            fileSystem.delete(path, true);
-            final FSDataOutputStream fsDataOutputStream = fileSystem.create(path);
+            final FSDataOutputStream fsDataOutputStream = fileSystem.create(path, true);
             try
             {
                 final DatumWriter<AvroPointFeature> datumWriter = new SpecificDatumWriter<AvroPointFeature>(AvroPointFeature.class);

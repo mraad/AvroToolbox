@@ -1,21 +1,20 @@
 {
-    "namespace": "com.esri",
     "type": "record",
+    "namespace": "com.esri",
     "name": "AvroPointFeature",
     "fields": [
         {
             "name": "geometry",
             "type": {
-                "namespace": "com.esri",
                 "type": "record",
+                "namespace": "com.esri",
                 "name": "AvroPoint",
                 "fields": [
                     {
                         "name": "spatialReference",
-                        "default": "null",
                         "type": {
-                            "namespace": "com.esri",
                             "type": "record",
+                            "namespace": "com.esri",
                             "name": "AvroSpatialReference",
                             "fields": [
                                 {
@@ -28,10 +27,9 @@
                     },
                     {
                         "name": "coord",
-                        "default": "null",
                         "type": {
-                            "namespace": "com.esri",
                             "type": "record",
+                            "namespace": "com.esri",
                             "name": "AvroCoord",
                             "fields": [
                                 {

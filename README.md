@@ -50,10 +50,10 @@ From the VM Terminal Shell, create a CDH4 package of the project:
 
     $ mvn -Pcdh4 clean package
 
-Create a *points* folder in HDFS, and load a set or random points as Avro features in HDFS:
+Create a *points* folder in HDFS, and load a set of random points as Avro features in HDFS:
 
     $ hadoop fs -mkdir points
-    $ mvn -Pcdh4 exec:java -q -Dexec.mainClass=com.esri.RandomPoints -Dexec.args="hdfs://localhost:8020/user/cloudera/points/points.avro"
+    $ mvn exec:java -q -Dexec.mainClass=com.esri.RandomPoints -Dexec.args="cloudera hdfs://localhost.localdomain:8020/user/cloudera/points/points.avro"
 
 Place the Avro schema in HDFS:
 
