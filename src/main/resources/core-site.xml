@@ -4,15 +4,16 @@
         <name>hadoop.job.ugi</name>
         <value>cloudera,cloudera</value>
     </property>
+    <!--
+        ssh -D 6666 cloudera@10.73.10.167
+
     <property>
         <name>hadoop.rpc.socket.factory.class.default</name>
         <value>org.apache.hadoop.net.SocksSocketFactory</value>
     </property>
-    <!--
-        ssh -D 6666 cloudera@10.73.10.167
-    -->
     <property>
         <name>hadoop.socks.server</name>
         <value>localhost:6666</value>
     </property>
+    -->
 </configuration>

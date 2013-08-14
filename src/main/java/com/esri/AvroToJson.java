@@ -15,7 +15,7 @@ import org.apache.hadoop.fs.Path;
 import java.io.IOException;
 
 /**
- * mvn -Pcdh3 exec:java -q -Dexec.mainClass=com.esri.AvroToJson -Dexec.args="hdfs://localhadoop:9000/user/mraad_admin/output/part-00000.avro 10"
+ * mvn exec:java -q -Dexec.mainClass=com.esri.AvroToJson -Dexec.args="hdfs://localhost.localdomain:8020/user/cloudera/output/part-00000.avro 10"
  */
 public class AvroToJson
 {

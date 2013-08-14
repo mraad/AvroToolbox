@@ -19,24 +19,24 @@ import org.apache.hadoop.util.ToolRunner;
 import java.io.IOException;
 
 /**
- * hadoop jar target/AvroToolbox-1.0-SNAPSHOT-job.jar /user/mraad_admin/worldlabels.avro /user/mraad_admin/output
+ * hadoop jar target/AvroToolbox-1.0-SNAPSHOT-job.jar /user/cloudera/points/points.avro /user/cloudera/output
  */
-public final class FeatureTool extends Configured implements Tool
+public final class ClusterFeatureJob extends Configured implements Tool
 {
     private final static double XMIN = -180.0;
     private final static double YMIN = -90.0;
 
     private static final class FeatureMapper extends AvroMapper<
-            AvroFeature, Pair<Long, Integer>>
+            AvroPointFeature, Pair<Long, Integer>>
     {
         @Override
         public void map(
-                final AvroFeature feature,
+                final AvroPointFeature feature,
                 final AvroCollector<Pair<Long, Integer>> collector,
                 final Reporter reporter)
                 throws IOException
         {
-            final AvroPoint avroPoint = (AvroPoint) feature.getGeometry();
+            final AvroPoint avroPoint = feature.getGeometry();
             final AvroCoord coord = avroPoint.getCoord();
             final long x = (long) Math.floor(coord.getX() - XMIN);
             final long y = (long) Math.floor(coord.getY() - YMIN);
@@ -73,8 +73,8 @@ public final class FeatureTool extends Configured implements Tool
             ToolRunner.printGenericCommandUsage(System.err);
             return -1;
         }
-        final JobConf jobConf = new JobConf(getConf(), FeatureTool.class);
-        jobConf.setJobName(FeatureTool.class.getSimpleName());
+        final JobConf jobConf = new JobConf(getConf(), ClusterFeatureJob.class);
+        jobConf.setJobName(ClusterFeatureJob.class.getSimpleName());
 
         FileInputFormat.setInputPaths(jobConf, new Path(args[0]));
 
@@ -85,7 +85,7 @@ public final class FeatureTool extends Configured implements Tool
         AvroJob.setMapperClass(jobConf, FeatureMapper.class);
         AvroJob.setReducerClass(jobConf, FeatureReducer.class);
 
-        AvroJob.setInputSchema(jobConf, AvroFeature.getClassSchema());
+        AvroJob.setInputSchema(jobConf, AvroPointFeature.getClassSchema());
         AvroJob.setOutputSchema(jobConf,
                 Pair.getPairSchema(Schema.create(Schema.Type.LONG),
                         Schema.create(Schema.Type.INT)));
@@ -96,7 +96,7 @@ public final class FeatureTool extends Configured implements Tool
 
     public static void main(String[] args) throws Exception
     {
-        System.exit(ToolRunner.run(new FeatureTool(), args));
+        System.exit(ToolRunner.run(new ClusterFeatureJob(), args));
     }
 
 }
