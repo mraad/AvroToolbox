@@ -15,11 +15,12 @@ This enables us to have a concrete java POJO class to work with.
 
     $ mvn -Pcdh3 clean package
 
-## CDH4 Packaging
+## CDH4 Packaging (default maven profile)
 
     $ mvn -Pcdh4 clean package
 
-Copy the file target/AvroToolbox-1.0-SNAPSHOT.jar and the folder target/libs to C:\Program Files (x86)\ArcGIS\Desktop10.1\java\lib\ext
+Copy the file target/AvroToolbox-1.0-SNAPSHOT.jar and the folder target/libs to C:\Program Files (x86)\ArcGIS\Desktop10.1\java\lib\ext.
+Make sure to adjust the max size of the JVM heap (-Xmx) using the *ArcGIS Java Configuration Tool*.
 
 ![Export To Avro](https://dl.dropboxusercontent.com/u/2193160/ExportToAvro.png "Export To Avro")
 
@@ -34,13 +35,13 @@ The following is a sample content of a Hadoop properties file:
 
 ## Running MapReduce job
 
-    $ mvn -Pcdh3-job clean package
-    $ hadoop jar target/AvroToolbox-1.0-SNAPSHOT-job.jar /user/mraad_admin/worldlabels.avro /user/mraad_admin/output
+    $ mvn -Pcdh4-job clean package
+    $ hadoop jar target/AvroToolbox-1.0-SNAPSHOT-job.jar /user/cloudera/worldlabels.avro /user/cloudera/output
 
 ## Viewing Avro content
 
-    $ mvn -Pcdh3 clean package
-    $ mvn -Pcdh3 exec:java -q -Dexec.mainClass=com.esri.AvroToJson -Dexec.args="hdfs://localhadoop:9000/user/mraad_admin/output/part-00000.avro"
+    $ mvn clean package
+    $ mvn exec:java -q -Dexec.mainClass=com.esri.AvroToJson -Dexec.args="hdfs://localhadoop:8020/user/cloudera/output/part-00000.avro"
 
 ## Experiments
 
@@ -50,7 +51,7 @@ The following is a small experiment to load Avro features into HDFS and query th
 
 From the VM Terminal Shell, create a CDH4 package of the project:
 
-    $ mvn -Pcdh4 clean package
+    $ mvn clean package
 
 Create a *points* folder in HDFS, and load a set of random points as Avro features in HDFS:
 
@@ -114,4 +115,4 @@ Clone and compile the [Geometry API](https://github.com/Esri/geometry-api-java) 
 Count the number of points that are within a user defined distance from a user location:
 
     hive> select count(1) from points
-      where ST_DISTANCE(ST_POINT(geometry.coord.x,geometry.coord.y),ST_POINT(75,24)) < 5;
+    where ST_DISTANCE(ST_POINT(geometry.coord.x,geometry.coord.y),ST_POINT(75,24)) < 5;
