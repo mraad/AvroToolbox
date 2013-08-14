@@ -48,6 +48,10 @@ public final class AvroToolbox implements IGPFunctionFactory
         {
             return new ExportToGenericAvroTool();
         }
+        if (ExportToAvroParquetTool.NAME.equalsIgnoreCase(s))
+        {
+            return new ExportToAvroParquetTool();
+        }
         if (ExportToAvroTool.NAME.equalsIgnoreCase(s))
         {
             return new ExportToAvroTool();
@@ -68,6 +72,16 @@ public final class AvroToolbox implements IGPFunctionFactory
             functionName.setDescription(ExportToGenericAvroTool.NAME);
             functionName.setDisplayName(ExportToGenericAvroTool.NAME);
             functionName.setName(ExportToGenericAvroTool.NAME);
+            functionName.setFactoryByRef(this);
+            return functionName;
+        }
+        if (ExportToAvroParquetTool.NAME.equalsIgnoreCase(s))
+        {
+            final GPFunctionName functionName = new GPFunctionName();
+            functionName.setCategory(ExportToAvroParquetTool.NAME);
+            functionName.setDescription(ExportToAvroParquetTool.NAME);
+            functionName.setDisplayName(ExportToAvroParquetTool.NAME);
+            functionName.setName(ExportToAvroParquetTool.NAME);
             functionName.setFactoryByRef(this);
             return functionName;
         }
@@ -98,6 +112,7 @@ public final class AvroToolbox implements IGPFunctionFactory
     {
         final EnumGPName nameArray = new EnumGPName();
         nameArray.add(getFunctionName(ExportToGenericAvroTool.NAME));
+        nameArray.add(getFunctionName(ExportToAvroParquetTool.NAME));
         nameArray.add(getFunctionName(ExportToAvroTool.NAME));
         nameArray.add(getFunctionName(SchemaTool.NAME));
         return nameArray;

@@ -5,9 +5,8 @@
         <value>cloudera,cloudera</value>
     </property>
     <!--
-        ssh -D 6666 cloudera@cloudera.localdomain
+        ssh -D localhost:6666 cloudera@clouderavm.esri.com
     -->
-    <!--
     <property>
         <name>hadoop.rpc.socket.factory.class.default</name>
         <value>org.apache.hadoop.net.SocksSocketFactory</value>
@@ -16,5 +15,4 @@
         <name>hadoop.socks.server</name>
         <value>localhost:6666</value>
     </property>
-    -->
 </configuration>

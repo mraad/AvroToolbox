@@ -16,7 +16,7 @@
         <hadoop.cdh3>0.20.2-cdh3u5</hadoop.cdh3>
         <hadoop.cdh4>2.0.0-cdh4.2.1</hadoop.cdh4>
         <hadoop.cdh4mr1>2.0.0-mr1-cdh4.2.1</hadoop.cdh4mr1>
-        <parquet.version>1.0.1-SNAPSHOT</parquet.version>
+        <parquet.version>1.0.2-SNAPSHOT</parquet.version>
         <avro.version>1.7.4</avro.version>
     </properties>
 
@@ -68,10 +68,23 @@
         </dependency>
         -->
         <dependency>
+            <groupId>com.twitter</groupId>
+            <artifactId>parquet-avro</artifactId>
+            <version>${parquet.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.hadoop</groupId>
+                    <artifactId>hadoop-client</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!--
+        <dependency>
             <groupId>org.apache.avro</groupId>
             <artifactId>avro</artifactId>
             <version>${avro.version}</version>
         </dependency>
+        -->
         <dependency>
             <groupId>org.apache.avro</groupId>
             <artifactId>avro-mapred</artifactId>
