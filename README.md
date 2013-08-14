@@ -25,9 +25,11 @@ Copy the file target/AvroToolbox-1.0-SNAPSHOT.jar and the folder target/libs to 
 
 The following is a sample content of a Hadoop properties file:
 
-    fs.default.name=hdfs\://localhadoop\:9000
-    hadoop.socks.server=localhost\:6666
+    hadoop.job.ugi=cloudera,cloudera
     hadoop.rpc.socket.factory.class.default=org.apache.hadoop.net.SocksSocketFactory
+    hadoop.socks.server=localhost\:6666
+    fs.default.name=hdfs\://localhost.localdomain\:8020/
+    mapred.job.tracker=localhost.localdomain\:8021
     dfs.client.use.legacy.blockreader=true
 
 ## Running MapReduce job
@@ -100,3 +102,16 @@ Query the table:
     {"x":-3.5726678441100717,"y":-66.01880710966441}	{1:8}
     {"x":40.776519552978755,"y":61.298035708039976}	{1:9}
     Time taken: 7.51 seconds
+
+Using the [GIS Tools for Hadoop](https://github.com/Esri/gis-tools-for-hadoop).
+Clone and compile the [Geometry API](https://github.com/Esri/geometry-api-java) and the [Hive Spatial User Defined Functions](https://github.com/Esri/spatial-framework-for-hadoop).
+
+    $ hive
+    hive > add jar /home/cloudera/esri-geometry-api-1.2-SNAPSHOT.jar;
+    hive > add jar /home/cloudera/spatial-sdk-hive-1.0-SNAPSHOT.jar;
+    hive > source function-ddl.sql;
+
+Count the number of points that are within a user defined distance from a user location:
+
+    hive> select count(1) from points
+      where ST_DISTANCE(ST_POINT(geometry.coord.x,geometry.coord.y),ST_POINT(75,24)) < 5;

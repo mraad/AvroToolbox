@@ -31,7 +31,6 @@ import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.security.UserGroupInformation;
 
 import java.io.File;
@@ -169,7 +168,7 @@ public final class ExportToGenericAvroTool extends AbstractTool
             }
             finally
             {
-                IOUtils.closeStream(fsDataOutputStream);
+                fsDataOutputStream.close();
             }
         }
         finally
