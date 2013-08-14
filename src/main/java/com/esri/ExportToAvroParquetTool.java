@@ -231,7 +231,7 @@ public final class ExportToAvroParquetTool extends AbstractTool
         addParamString(parameters, "Hadoop user", "in_hadoop_user", username);
         addParamFeatureLayer(parameters, "Input feature class", "in_features");
         addParamString(parameters, "Input schema", "in_schema", "/user/" + username + "/features.avsc");
-        addParamString(parameters, "Remote output path", "in_output_path", "/user/" + username + "/features.avro");
+        addParamString(parameters, "Remote output path", "in_output_path", "hdfs://hadoop:8020/user/" + username + "/features.avro");
 
         return parameters;
     }

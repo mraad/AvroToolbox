@@ -1,12 +1,10 @@
 <?xml version="1.0"?> <?xml-stylesheet type="text/xsl" href="configuration.xsl"?> <!-- Put site-specific property overrides in this file. -->
 <configuration>
+    <!--
     <property>
         <name>hadoop.job.ugi</name>
         <value>cloudera,cloudera</value>
     </property>
-    <!--
-        ssh -D localhost:6666 cloudera@clouderavm.esri.com
-    -->
     <property>
         <name>hadoop.rpc.socket.factory.class.default</name>
         <value>org.apache.hadoop.net.SocksSocketFactory</value>
@@ -15,4 +13,5 @@
         <name>hadoop.socks.server</name>
         <value>localhost:6666</value>
     </property>
+    -->
 </configuration>
