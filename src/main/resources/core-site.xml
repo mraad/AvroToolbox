@@ -5,8 +5,9 @@
         <value>cloudera,cloudera</value>
     </property>
     <!--
-        ssh -D 6666 cloudera@10.73.10.167
-
+        ssh -D 6666 cloudera@cloudera.localdomain
+    -->
+    <!--
     <property>
         <name>hadoop.rpc.socket.factory.class.default</name>
         <value>org.apache.hadoop.net.SocksSocketFactory</value>

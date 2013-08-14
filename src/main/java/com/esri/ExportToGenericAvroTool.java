@@ -9,12 +9,9 @@ import com.esri.arcgis.geodatabase.IFields;
 import com.esri.arcgis.geodatabase.IGPMessages;
 import com.esri.arcgis.geodatabase.IGPValue;
 import com.esri.arcgis.geometry.IGeometry;
-import com.esri.arcgis.geometry.ISpatialReference;
-import com.esri.arcgis.geometry.ISpatialReferenceAuthority;
 import com.esri.arcgis.geometry.Point;
 import com.esri.arcgis.geometry.Polygon;
 import com.esri.arcgis.geometry.Polyline;
-import com.esri.arcgis.geometry.esriSRGeoCSType;
 import com.esri.arcgis.geoprocessing.IGPEnvironmentManager;
 import com.esri.arcgis.interop.AutomationException;
 import com.esri.arcgis.interop.Cleaner;
@@ -68,15 +65,6 @@ public final class ExportToGenericAvroTool extends AbstractTool
         messages.addMessage(String.format("Exported %d features.", count));
     }
 
-    private Configuration createConfiguration(
-            final String propertiesPath) throws IOException
-    {
-        final Configuration configuration = new Configuration();
-        configuration.setClassLoader(ClassLoader.getSystemClassLoader());
-        loadProperties(configuration, propertiesPath);
-        return configuration;
-    }
-
     private int doExport(
             final IGPValue hadoopPropValue,
             final IGPValue featureClassValue,
@@ -88,20 +76,7 @@ public final class ExportToGenericAvroTool extends AbstractTool
         gpUtilities.decodeFeatureLayer(featureClassValue, featureClasses, null);
         final FeatureClass featureClass = new FeatureClass(featureClasses[0]);
 
-        // final String shapeFieldName = featureClass.getShapeFieldName();
-
-        final ISpatialReference spatialReference = featureClass.getSpatialReference();
-        final int wkid;
-        if (spatialReference instanceof ISpatialReferenceAuthority)
-        {
-            final ISpatialReferenceAuthority spatialReferenceAuthority = (ISpatialReferenceAuthority) spatialReference;
-            final int code = spatialReferenceAuthority.getCode();
-            wkid = code == 0 ? esriSRGeoCSType.esriSRGeoCS_WGS1984 : code;
-        }
-        else
-        {
-            wkid = esriSRGeoCSType.esriSRGeoCS_WGS1984;
-        }
+        final int wkid = getWkid(featureClass);
 
         final Configuration configuration = createConfiguration(hadoopPropValue.getAsText());
 
@@ -111,11 +86,7 @@ public final class ExportToGenericAvroTool extends AbstractTool
         final FileSystem fileSystem = path.getFileSystem(configuration);
         try
         {
-            if (fileSystem.exists(path))
-            {
-                fileSystem.delete(path, true);
-            }
-            final FSDataOutputStream fsDataOutputStream = fileSystem.create(path);
+            final FSDataOutputStream fsDataOutputStream = fileSystem.create(path, true);
             try
             {
                 final DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<GenericRecord>(schema);
@@ -186,6 +157,7 @@ public final class ExportToGenericAvroTool extends AbstractTool
             final IFeature feature,
             final Polygon shape)
     {
+        // TODO
         return null;
     }
 
@@ -196,6 +168,7 @@ public final class ExportToGenericAvroTool extends AbstractTool
             final IFeature feature,
             final Polyline shape)
     {
+        // TODO
         return null;
     }
 

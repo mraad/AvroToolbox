@@ -21,9 +21,9 @@ public class RandomPoints
 {
     public static void main(final String[] args) throws IOException, InterruptedException
     {
-        if (args.length != 2)
+        if (args.length < 2)
         {
-            System.err.println("Usage: remote-user hdfs-path");
+            System.err.println("Usage: remote-user hdfs-path [count]");
             System.exit(-1);
         }
         final UserGroupInformation ugi = UserGroupInformation.createRemoteUser(args[0]);
@@ -32,13 +32,16 @@ public class RandomPoints
             @Override
             public Void run() throws Exception
             {
-                doMain(args[1]);
+                final int count = args.length == 3 ? Integer.parseInt(args[2]) : 1000;
+                doMain(args[1], count);
                 return null;
             }
         });
     }
 
-    private static void doMain(final String pathString) throws IOException
+    private static void doMain(
+            final String pathString,
+            final int count) throws IOException
     {
         final Configuration configuration = new Configuration();
         final Path path = new Path(pathString);
@@ -57,7 +60,7 @@ public class RandomPoints
                     final AvroSpatialReference spatialReference = AvroSpatialReference.newBuilder().
                             setWkid(4326).
                             build();
-                    for (int i = 0; i < 100; i++)
+                    for (int i = 0; i < count; i++)
                     {
                         map.put("id", i);
                         final double x = -180.0 + 360.0 * Math.random();
@@ -67,10 +70,10 @@ public class RandomPoints
                         final AvroPoint avroPoint = AvroPoint.newBuilder().
                                 setCoord(avroCoord).setSpatialReference(spatialReference).
                                 build();
-                        final AvroPointFeature avroFeature = AvroPointFeature.newBuilder().
+                        final AvroPointFeature avroPointFeature = AvroPointFeature.newBuilder().
                                 setGeometry(avroPoint).
                                 setAttributes(map).build();
-                        dataFileWriter.append(avroFeature);
+                        dataFileWriter.append(avroPointFeature);
                     }
                 }
                 finally

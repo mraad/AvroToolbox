@@ -8,9 +8,6 @@ import com.esri.arcgis.geodatabase.IFields;
 import com.esri.arcgis.geodatabase.IGPMessages;
 import com.esri.arcgis.geodatabase.IGPValue;
 import com.esri.arcgis.geodatabase.esriFieldType;
-import com.esri.arcgis.geometry.ISpatialReference;
-import com.esri.arcgis.geometry.ISpatialReferenceAuthority;
-import com.esri.arcgis.geometry.esriSRGeoCSType;
 import com.esri.arcgis.geometry.esriShapeType;
 import com.esri.arcgis.geoprocessing.IGPEnvironmentManager;
 import com.esri.arcgis.interop.AutomationException;
@@ -21,7 +18,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerator;
@@ -60,15 +56,6 @@ public final class SchemaTool extends AbstractTool
         });
     }
 
-    private Configuration createConfiguration(
-            final String propertiesPath) throws IOException
-    {
-        final Configuration configuration = new Configuration();
-        configuration.setClassLoader(ClassLoader.getSystemClassLoader());
-        loadProperties(configuration, propertiesPath);
-        return configuration;
-    }
-
     private void doExport(
             final IGPValue hadoopPropValue,
             final IGPValue featureClassValue,
@@ -86,18 +73,14 @@ public final class SchemaTool extends AbstractTool
             final FileSystem fileSystem = path.getFileSystem(configuration);
             try
             {
-                if (fileSystem.exists(path))
-                {
-                    fileSystem.delete(path, true);
-                }
-                final FSDataOutputStream fsDataOutputStream = fileSystem.create(path);
+                final FSDataOutputStream fsDataOutputStream = fileSystem.create(path, true);
                 try
                 {
                     doSchema(fsDataOutputStream, namespace, featureClass, messages);
                 }
                 finally
                 {
-                    IOUtils.closeStream(fsDataOutputStream);
+                    fsDataOutputStream.close();
                 }
             }
             finally
@@ -136,30 +119,6 @@ public final class SchemaTool extends AbstractTool
         {
             g.close();
         }
-    }
-
-    private int getWkid(final FeatureClass featureClass) throws IOException
-    {
-        final int wkid;
-        final ISpatialReference spatialReference = featureClass.getSpatialReference();
-        try
-        {
-            if (spatialReference instanceof ISpatialReferenceAuthority)
-            {
-                final ISpatialReferenceAuthority spatialReferenceAuthority = (ISpatialReferenceAuthority) spatialReference;
-                final int code = spatialReferenceAuthority.getCode();
-                wkid = code == 0 ? esriSRGeoCSType.esriSRGeoCS_WGS1984 : code;
-            }
-            else
-            {
-                wkid = esriSRGeoCSType.esriSRGeoCS_WGS1984;
-            }
-        }
-        finally
-        {
-            Cleaner.release(spatialReference);
-        }
-        return wkid;
     }
 
     private void writeFields(

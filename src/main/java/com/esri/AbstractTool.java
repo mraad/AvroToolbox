@@ -6,7 +6,11 @@ import com.esri.arcgis.datasourcesfile.DELayerType;
 import com.esri.arcgis.geodatabase.DEFeatureClassType;
 import com.esri.arcgis.geodatabase.DETable;
 import com.esri.arcgis.geodatabase.DETableType;
+import com.esri.arcgis.geodatabase.FeatureClass;
 import com.esri.arcgis.geodatabase.IGPMessages;
+import com.esri.arcgis.geometry.ISpatialReference;
+import com.esri.arcgis.geometry.ISpatialReferenceAuthority;
+import com.esri.arcgis.geometry.esriSRGeoCSType;
 import com.esri.arcgis.geoprocessing.BaseGeoprocessingTool;
 import com.esri.arcgis.geoprocessing.GPCompositeDataType;
 import com.esri.arcgis.geoprocessing.GPFeatureLayer;
@@ -21,6 +25,7 @@ import com.esri.arcgis.geoprocessing.IGPEnvironmentManager;
 import com.esri.arcgis.geoprocessing.esriGPParameterDirection;
 import com.esri.arcgis.geoprocessing.esriGPParameterType;
 import com.esri.arcgis.interop.AutomationException;
+import com.esri.arcgis.interop.Cleaner;
 import com.esri.arcgis.system.IArray;
 import com.esri.arcgis.system.IName;
 import com.esri.arcgis.system.ITrackCancel;
@@ -200,4 +205,37 @@ public abstract class AbstractTool extends BaseGeoprocessingTool
             final IArray parameters,
             final IGPMessages messages,
             final IGPEnvironmentManager environmentManager) throws Throwable;
+
+    protected Configuration createConfiguration(
+            final String propertiesPath) throws IOException
+    {
+        final Configuration configuration = new Configuration();
+        configuration.setClassLoader(ClassLoader.getSystemClassLoader());
+        loadProperties(configuration, propertiesPath);
+        return configuration;
+    }
+
+    protected int getWkid(final FeatureClass featureClass) throws IOException
+    {
+        final int wkid;
+        final ISpatialReference spatialReference = featureClass.getSpatialReference();
+        try
+        {
+            if (spatialReference instanceof ISpatialReferenceAuthority)
+            {
+                final ISpatialReferenceAuthority spatialReferenceAuthority = (ISpatialReferenceAuthority) spatialReference;
+                final int code = spatialReferenceAuthority.getCode();
+                wkid = code == 0 ? esriSRGeoCSType.esriSRGeoCS_WGS1984 : code;
+            }
+            else
+            {
+                wkid = esriSRGeoCSType.esriSRGeoCS_WGS1984;
+            }
+        }
+        finally
+        {
+            Cleaner.release(spatialReference);
+        }
+        return wkid;
+    }
 }

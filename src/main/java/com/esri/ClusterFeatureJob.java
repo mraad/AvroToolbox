@@ -19,6 +19,7 @@ import org.apache.hadoop.util.ToolRunner;
 import java.io.IOException;
 
 /**
+ * mvn -Pcdh4-job clean package
  * hadoop jar target/AvroToolbox-1.0-SNAPSHOT-job.jar /user/cloudera/points/points.avro /user/cloudera/output
  */
 public final class ClusterFeatureJob extends Configured implements Tool
