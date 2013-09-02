@@ -31,6 +31,7 @@ import com.esri.arcgis.system.IName;
 import com.esri.arcgis.system.ITrackCancel;
 import org.apache.hadoop.conf.Configuration;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -137,6 +138,13 @@ public abstract class AbstractTool extends BaseGeoprocessingTool
     }
 
     protected void addParamFeatureLayer(
+            final IArray parameters
+    ) throws IOException
+    {
+        addParamFeatureLayer(parameters, "Input features", "in_features");
+    }
+
+    protected void addParamFeatureLayer(
             final IArray parameters,
             final String displayName,
             final String name) throws IOException
@@ -237,5 +245,18 @@ public abstract class AbstractTool extends BaseGeoprocessingTool
             Cleaner.release(spatialReference);
         }
         return wkid;
+    }
+
+    protected void addParamHadoopProperties(final IArray parameters) throws IOException
+    {
+        final String userhome = System.getProperty("user.home") + File.separator;
+        addParamFile(parameters, "Hadoop properties file", "in_hadoop_prop", userhome + "hadoop.properties");
+    }
+
+    protected void addParamHadoopUser(
+            final IArray parameters,
+            final String username) throws IOException
+    {
+        addParamString(parameters, "Hadoop user", "in_hadoop_user", username);
     }
 }

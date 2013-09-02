@@ -31,7 +31,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.security.UserGroupInformation;
 
-import java.io.File;
 import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
@@ -78,105 +77,116 @@ public final class ExportToAvroTool extends AbstractTool
         final IFeatureClass[] featureClasses = new IFeatureClass[]{new IFeatureClassProxy()};
         gpUtilities.decodeFeatureLayer(featureClassValue, featureClasses, null);
         final FeatureClass featureClass = new FeatureClass(featureClasses[0]);
-
-        final int wkid = getWkid(featureClass);
-
-        final AvroSpatialReference avroSpatialReference = AvroSpatialReference.newBuilder().setWkid(wkid).build();
-
-        final Configuration configuration = createConfiguration(hadoopPropValue.getAsText());
-        final Path path = new Path(outputValue.getAsText());
-        final FileSystem fileSystem = path.getFileSystem(configuration);
         try
         {
-            final FSDataOutputStream fsDataOutputStream = fileSystem.create(path, true);
+            final int wkid = getWkid(featureClass);
+
+            final AvroSpatialReference avroSpatialReference = AvroSpatialReference.newBuilder().setWkid(wkid).build();
+
+            final Configuration configuration = createConfiguration(hadoopPropValue.getAsText());
+            final Path path = new Path(outputValue.getAsText());
+            final FileSystem fileSystem = path.getFileSystem(configuration);
             try
             {
-                final DatumWriter<AvroFeature> datumWriter = new SpecificDatumWriter<AvroFeature>(AvroFeature.class);
-                final DataFileWriter<AvroFeature> dataFileWriter = new DataFileWriter<AvroFeature>(datumWriter);
-                dataFileWriter.create(AvroFeature.getClassSchema(), fsDataOutputStream);
+                final FSDataOutputStream fsDataOutputStream = fileSystem.create(path, true);
                 try
                 {
-                    final IFeatureCursor cursor = featureClass.search(null, false);
+                    final DatumWriter<AvroFeature> datumWriter = new SpecificDatumWriter<AvroFeature>(AvroFeature.class);
+                    final DataFileWriter<AvroFeature> dataFileWriter = new DataFileWriter<AvroFeature>(datumWriter);
+                    dataFileWriter.create(AvroFeature.getClassSchema(), fsDataOutputStream);
                     try
                     {
-                        final IFields fields = cursor.getFields();
-                        IFeature feature = cursor.nextFeature();
+                        final IFeatureCursor cursor = featureClass.search(null, false);
                         try
                         {
-                            while (feature != null)
+                            final IFields fields = cursor.getFields();
+                            IFeature feature = cursor.nextFeature();
+                            try
                             {
-                                final Map<CharSequence, Object> attributes = new HashMap<CharSequence, Object>();
-                                final int fieldCount = fields.getFieldCount();
-                                for (int f = 0; f < fieldCount; f++)
+                                while (feature != null)
                                 {
-                                    final IField field = fields.getField(f);
-                                    final String name = field.getName();
-                                    final Object value = feature.getValue(f);
-                                    switch (field.getType())
+                                    try
                                     {
-                                        case esriFieldType.esriFieldTypeDouble:
-                                        case esriFieldType.esriFieldTypeString:
-                                        case esriFieldType.esriFieldTypeSingle:
-                                        case esriFieldType.esriFieldTypeInteger:
-                                            attributes.put(name, value);
-                                            break;
-                                        case esriFieldType.esriFieldTypeSmallInteger:
-                                            if (value instanceof Short)
+                                        final Map<CharSequence, Object> attributes = new HashMap<CharSequence, Object>();
+                                        final int fieldCount = fields.getFieldCount();
+                                        for (int f = 0; f < fieldCount; f++)
+                                        {
+                                            final IField field = fields.getField(f);
+                                            final String name = field.getName();
+                                            final Object value = feature.getValue(f);
+                                            switch (field.getType()) // TODO - Handle other types
                                             {
-                                                attributes.put(name, ((Short) value).intValue());
+                                                case esriFieldType.esriFieldTypeDouble:
+                                                case esriFieldType.esriFieldTypeString:
+                                                case esriFieldType.esriFieldTypeSingle:
+                                                case esriFieldType.esriFieldTypeInteger:
+                                                    attributes.put(name, value);
+                                                    break;
+                                                case esriFieldType.esriFieldTypeSmallInteger:
+                                                    if (value instanceof Short)
+                                                    {
+                                                        attributes.put(name, ((Short) value).intValue());
+                                                    }
+                                                    else if (value instanceof Byte)
+                                                    {
+                                                        attributes.put(name, ((Byte) value).intValue());
+                                                    }
+                                                    break;
                                             }
-                                            else if (value instanceof Byte)
-                                            {
-                                                attributes.put(name, ((Byte) value).intValue());
-                                            }
-                                            break;
+                                        }
+                                        final IGeometry shape = feature.getShape();
+                                        if (shape instanceof Point)
+                                        {
+                                            dataFileWriter.append(buildFeature(avroSpatialReference, attributes, (Point) shape));
+                                            count++;
+                                        }
+                                        else if (shape instanceof Polygon)
+                                        {
+                                            dataFileWriter.append(buildFeature(avroSpatialReference, attributes, (Polygon) shape));
+                                            count++;
+                                        }
+                                        else if (shape instanceof Polyline)
+                                        {
+                                            dataFileWriter.append(buildFeature(avroSpatialReference, attributes, (Polyline) shape));
+                                            count++;
+                                        }
                                     }
+                                    finally
+                                    {
+                                        Cleaner.release(feature);
+                                    }
+                                    feature = cursor.nextFeature();
                                 }
-                                final IGeometry shape = feature.getShape();
-                                if (shape instanceof Point)
-                                {
-                                    dataFileWriter.append(buildFeature(avroSpatialReference, attributes, (Point) shape));
-                                    count++;
-                                }
-                                else if (shape instanceof Polygon)
-                                {
-                                    dataFileWriter.append(buildFeature(avroSpatialReference, attributes, (Polygon) shape));
-                                    count++;
-                                }
-                                else if (shape instanceof Polyline)
-                                {
-                                    dataFileWriter.append(buildFeature(avroSpatialReference, attributes, (Polyline) shape));
-                                    count++;
-                                }
-                                feature = cursor.nextFeature();
+                            }
+                            finally
+                            {
+                                Cleaner.release(fields);
                             }
                         }
                         finally
                         {
-                            Cleaner.release(feature);
-                            Cleaner.release(fields);
+                            Cleaner.release(cursor);
                         }
                     }
                     finally
                     {
-                        Cleaner.release(cursor);
+                        dataFileWriter.close();
                     }
                 }
                 finally
                 {
-                    dataFileWriter.close();
+                    fsDataOutputStream.close();
                 }
             }
             finally
             {
-                fsDataOutputStream.close();
+                fileSystem.close();
             }
         }
         finally
         {
-            fileSystem.close();
+            Cleaner.release(featureClass);
         }
-        Cleaner.release(featureClass);
         return count;
     }
 
@@ -262,14 +272,13 @@ public final class ExportToAvroTool extends AbstractTool
     @Override
     public IArray getParameterInfo() throws IOException, AutomationException
     {
-        final String username = System.getProperty("user.name");
-        final String userhome = System.getProperty("user.home") + File.separator;
+        final String username = "cloudera"; // System.getProperty("user.name");
 
         final IArray parameters = new Array();
 
-        addParamFile(parameters, "Hadoop properties file", "in_hadoop_prop", userhome + "hadoop.properties");
-        addParamString(parameters, "Hadoop user", "in_hadoop_user", username);
-        addParamFeatureLayer(parameters, "Input features", "in_features");
+        addParamHadoopProperties(parameters);
+        addParamHadoopUser(parameters, username);
+        addParamFeatureLayer(parameters);
         addParamString(parameters, "Remote output path", "in_output_path", "/user/" + username + "/features.avro");
 
         return parameters;

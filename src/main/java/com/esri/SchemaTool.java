@@ -22,7 +22,6 @@ import org.apache.hadoop.security.UserGroupInformation;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerator;
 
-import java.io.File;
 import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
 
@@ -243,10 +242,11 @@ public final class SchemaTool extends AbstractTool
     {
         g.writeStartObject();
         g.writeStringField("name", "geometry");
-        // g.writeStringField("default", "null");
         writeRecordStart(g, namespace, "AvroPolyline");
+
         writeSpatialReference(g, namespace, wkid);
         writeRingPath(g, namespace, "paths");
+
         g.writeEndArray();
         g.writeEndObject();
         g.writeEndObject();
@@ -260,14 +260,17 @@ public final class SchemaTool extends AbstractTool
         g.writeStartObject();
         {
             g.writeStringField("name", name);
-            // g.writeStringField("default", "null");
             g.writeObjectFieldStart("type");
             {
                 g.writeStringField("type", "array");
                 g.writeObjectFieldStart("items");
                 {
                     g.writeStringField("type", "array");
-                    writeCoord(g, namespace);
+                    g.writeObjectFieldStart("items");
+                    {
+                        writeAvroCoord(g, namespace);
+                    }
+                    g.writeEndObject();
                 }
                 g.writeEndObject(); // items
             }
@@ -284,7 +287,6 @@ public final class SchemaTool extends AbstractTool
         g.writeStartObject();
         {
             g.writeStringField("name", "geometry");
-            // g.writeStringField("default", "null");
             g.writeObjectFieldStart("type");
             {
                 g.writeStringField("type", "record");
@@ -296,9 +298,10 @@ public final class SchemaTool extends AbstractTool
                     g.writeStartObject();
                     {
                         g.writeStringField("name", "coord");
-                        // g.writeStringField("default", "null");
                         g.writeObjectFieldStart("type");
-                        writeAvroCoord(g, namespace);
+                        {
+                            writeAvroCoord(g, namespace);
+                        }
                         g.writeEndObject();
                     }
                     g.writeEndObject();
@@ -325,15 +328,6 @@ public final class SchemaTool extends AbstractTool
     private void writeRecordEnd(final JsonGenerator g) throws IOException
     {
         g.writeEndArray();
-        g.writeEndObject();
-    }
-
-    private void writeCoord(
-            final JsonGenerator g,
-            final String namespace) throws IOException
-    {
-        g.writeStartObject();
-        writeAvroCoord(g, namespace);
         g.writeEndObject();
     }
 
@@ -396,14 +390,13 @@ public final class SchemaTool extends AbstractTool
     @Override
     public IArray getParameterInfo() throws IOException, AutomationException
     {
-        final String username = System.getProperty("user.name");
-        final String userhome = System.getProperty("user.home") + File.separator;
+        final String username = "cloudera"; //System.getProperty("user.name");
 
         final IArray parameters = new Array();
 
-        addParamFile(parameters, "Hadoop properties file", "in_hadoop_prop", userhome + "hadoop.properties");
-        addParamString(parameters, "Hadoop user", "in_hadoop_user", username);
-        addParamFeatureLayer(parameters, "Input features", "in_features");
+        addParamHadoopProperties(parameters);
+        addParamHadoopUser(parameters, username);
+        addParamFeatureLayer(parameters);
         addParamString(parameters, "Schema output path", "in_output_path", "/user/" + username + "/features.avsc");
 
         return parameters;

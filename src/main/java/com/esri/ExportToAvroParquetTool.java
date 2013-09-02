@@ -27,7 +27,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.security.UserGroupInformation;
 import parquet.avro.AvroParquetWriter;
 
-import java.io.File;
 import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
 
@@ -222,16 +221,15 @@ public final class ExportToAvroParquetTool extends AbstractTool
     @Override
     public IArray getParameterInfo() throws IOException, AutomationException
     {
-        final String username = System.getProperty("user.name");
-        final String userhome = System.getProperty("user.home") + File.separator;
+        final String username = "cloudera"; // System.getProperty("user.name");
 
         final IArray parameters = new Array();
 
-        addParamFile(parameters, "Hadoop properties file", "in_hadoop_prop", userhome + "hadoop.properties");
-        addParamString(parameters, "Hadoop user", "in_hadoop_user", username);
-        addParamFeatureLayer(parameters, "Input feature class", "in_features");
+        addParamHadoopProperties(parameters);
+        addParamHadoopUser(parameters, username);
+        addParamFeatureLayer(parameters);
         addParamString(parameters, "Input schema", "in_schema", "/user/" + username + "/features.avsc");
-        addParamString(parameters, "Remote output path", "in_output_path", "hdfs://hadoop:8020/user/" + username + "/features.avro");
+        addParamString(parameters, "Remote output path", "in_output_path", "hdfs://localhost:8020/user/" + username + "/features.avro");
 
         return parameters;
     }

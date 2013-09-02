@@ -91,7 +91,7 @@ public final class ClusterFeatureJob extends Configured implements Tool
                 Pair.getPairSchema(Schema.create(Schema.Type.LONG),
                         Schema.create(Schema.Type.INT)));
 
-        final Job job = new Job(jobConf);
+        final Job job = Job.getInstance(jobConf);
         return job.waitForCompletion(true) ? 0 : 1;
     }
 
