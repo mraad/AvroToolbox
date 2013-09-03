@@ -1,16 +1,16 @@
 <?xml version="1.0"?> <?xml-stylesheet type="text/xsl" href="configuration.xsl"?> <!-- Put site-specific property overrides in this file. -->
 <configuration>
     <property>
-        <name>hadoop.job.ugi</name>
-        <value>cloudera,cloudera</value>
-    </property>
-    <property>
         <name>hadoop.rpc.socket.factory.class.default</name>
         <value>org.apache.hadoop.net.SocksSocketFactory</value>
     </property>
     <property>
         <name>hadoop.socks.server</name>
         <value>localhost:6666</value>
+    </property>
+    <property>
+        <name>hadoop.job.ugi</name>
+        <value>cloudera,cloudera</value>
     </property>
     <property>
         <name>fs.default.name</name>
@@ -27,5 +27,9 @@
     <property>
         <name>dfs.client.use.legacy.blockreader</name>
         <value>true</value>
+    </property>
+    <property>
+        <name>mapred.job.tracker</name>
+        <value>localhost.localdomain:8021</value>
     </property>
 </configuration>
